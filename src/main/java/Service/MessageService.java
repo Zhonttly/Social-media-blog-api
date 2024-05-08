@@ -3,8 +3,6 @@ package Service;
 import Model.Message; 
 import DAO.MessageDAO;
 
-import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -78,5 +76,33 @@ public class MessageService {
      */
     public Message deleteMessageByID(int message_id) {
         return messageDAO.deleteMessage(message_id);
+    }
+
+    /**
+     * Updates a message by its ID
+     * 
+     * @param message_id ID of message to be updated
+     * @param message_text Message body to be added in
+     * @return The updated message, null if the message body is not valid or the message ID does not exist
+     */
+    public Message updateMessageByID(int message_id, String message_text) {
+
+        if (message_text.length() > 0 && message_text.length() < 256) {
+            return messageDAO.updateMessage(message_id, message_text);
+        }
+
+        return null;
+    }
+
+    /**
+     * Retrieves all messages from a particular account 
+     * 
+     * @param posted_by The account ID to retrieve messages from
+     * @return List of messages from the account
+     */
+    public List<Message> getAllMessagesByID(int posted_by) {
+
+        return messageDAO.getMessagesByAccount(posted_by);
+
     }
 }

@@ -8,9 +8,12 @@ import Service.MessageService;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.List;
+import java.util.*;
+
 
 /**
  * TODO: You will need to write your own endpoints and handlers for your controller. The endpoints you will need can be
@@ -36,8 +39,7 @@ public class SocialMediaController {
      * @return a Javalin app object which defines the behavior of the Javalin controller.
      */
     public Javalin startAPI() {
-        System.out.println("Starting Javalin...");
-
+ 
         //Set up Javalin
         Javalin app = Javalin.create();
 
@@ -64,8 +66,6 @@ public class SocialMediaController {
      */
     private void postNewAccountHandler(Context context) throws JsonProcessingException {
 
-        System.out.println("PostNewAccountHandler was invoked!");
-
         //Create a mapper to convert the JSON representation of the message to an account object
         ObjectMapper mapper = new ObjectMapper();
         Account account = mapper.readValue(context.body(), Account.class);
@@ -89,7 +89,6 @@ public class SocialMediaController {
      * @throws JsonProcessingException
      */
     private void postLoginHandler(Context context) throws JsonProcessingException {
-        System.out.println("PostLoginHandler was invoked!");
 
         //Get account from user input
         ObjectMapper mapper = new ObjectMapper();
@@ -179,9 +178,27 @@ public class SocialMediaController {
      * Handler to update/patch a message by its ID
      * 
      * @param context the context object handles information HTTP requests and generates responses within Javalin. 
+     * @throws NumberFormatException
+     * @throws JsonProcessingException
+     * @throws JsonMappingException
      */
-    private void patchMessageByIDHandler(Context context) {
+    private void patchMessageByIDHandler(Context context) throws JsonProcessingException {
 
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode strMap = mapper.readTree(context.body());
+        String message_text = strMap.get("message_text").asText();
+
+        //Update the message
+        Message updatedMessage = messageService.updateMessageByID(
+            Integer.parseInt(context.pathParam("message_id")), 
+            message_text);
+
+        //Return the body of the message and message ID. Returns an error if the message was NULL
+        if(updatedMessage != null){
+            context.json(updatedMessage);
+        }else{
+            context.status(400);
+        }
     }
 
     /**
@@ -190,7 +207,15 @@ public class SocialMediaController {
      * @param context the context object handles information HTTP requests and generates responses within Javalin. 
      */
     private void getAllMessagesByIDHandler(Context context) {
-
+        List<Message> messages = messageService.getAllMessagesByID(Integer.parseInt(context.pathParam("account_id")));
+      
+        //Force a 200 response body
+        if (messages != null) {
+            context.json(messages);
+        }  
+        else {
+            context.status(200);
+        }
     }
 
 

@@ -3,10 +3,6 @@ package Service;
 import Model.Account; 
 import DAO.AccountDAO;
 
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Service class for account logic
  */
@@ -36,10 +32,10 @@ public class AccountService {
      */
     public Account addAccount(Account account) {
 
-        System.out.println("addAccount from the Service class invoked!");
 
         //Check if the account is valid and unique
         if(account.getUsername().length() > 0
+            && account.getUsername().length() < 256
             && accountDAO.getAccountFromUsername(account.getUsername()) == null 
             && account.getPassword().length() >= 4) {
 

@@ -26,7 +26,6 @@ public class MessageDAO {
      */
     public Message insertMessage(Message message) {
 
-        System.out.println("Attempting to post a new message in the DAO...");
         Connection connection = ConnectionUtil.getConnection();
 
         try {
@@ -70,7 +69,6 @@ public class MessageDAO {
      */
     public List<Message> getAllMessages() {
 
-        System.out.println("Getting all messages...");
         Connection connection = ConnectionUtil.getConnection();
         List<Message> messages = new ArrayList<Message>();
 
@@ -122,7 +120,6 @@ public class MessageDAO {
 
             ResultSet rs = ps.executeQuery();
 
-            System.out.println("so far so good");
             //Return the message
             while(rs.next()) {
                 return new Message(
@@ -170,7 +167,82 @@ public class MessageDAO {
         }
 
         return null;
+    }
 
+    /**
+     * Updates the message text of an existing message in the database
+     * 
+     * @param message_id ID of the message we want to update
+     * @param message_text body of the new message
+     * @return The updated message, or null if null message was udpated
+     */
+    public Message updateMessage(int message_id, String message_text) {
+
+        Connection connection = ConnectionUtil.getConnection();
+
+        try {
+
+            //Check if message exists
+            Message updMessage = this.retrieveMessageByID(message_id);
+
+            if(updMessage != null) {
+                //SQL logic to update
+                String sql = "UPDATE message SET message_text = ? WHERE message_id = ? ";
+                PreparedStatement ps = connection.prepareStatement(sql);
+
+                ps.setString(1, message_text);
+                ps.setInt(2, message_id);
+
+                ps.executeUpdate();
+
+                //Returns update message
+                return this.retrieveMessageByID(message_id);
+            }
+
+        } catch(SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return null;
+
+    }
+
+    /**
+     * Retrieves all messages from a specific account 
+     * 
+     * @param posted_by Account ID to retrieve messages from
+     * @return All messages from the specified account ID
+     */
+    public List<Message> getMessagesByAccount(int posted_by) {
+        Connection connection = ConnectionUtil.getConnection();
+        List<Message> messages = new ArrayList<Message>();
+
+        try {
+
+            //SQL logic to retrieve messages
+            String sql = "SELECT * FROM message WHERE posted_by = ?";
+            PreparedStatement ps = connection.prepareStatement(sql);
+
+            ps.setInt(1, posted_by);
+
+            ResultSet rs = ps.executeQuery();
+
+            //Add messages to list
+            while(rs.next()) {
+                Message message = new Message(
+                    rs.getInt("message_id"),
+                    posted_by,
+                    rs.getString("message_text"),
+                    rs.getLong("time_posted_epoch") );
+
+                messages.add(message);
+            }
+
+        } catch(SQLException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return messages;
     }
     
 }

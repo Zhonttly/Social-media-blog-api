@@ -10,7 +10,9 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-
+/**
+ * DAO for the account database
+ */
 public class AccountDAO {
     
     Connection connection = ConnectionUtil.getConnection();
@@ -19,7 +21,7 @@ public class AccountDAO {
      * @param account account to be added
      */
     public Account createAccount(Account account) {
-        System.out.println("Attempting to create a new account in the DAO...");
+
         Connection connection = ConnectionUtil.getConnection();
 
         try {
@@ -34,16 +36,7 @@ public class AccountDAO {
             
             preparedStatement.executeUpdate();
 
-            // //Return the newly added account in the database
-            // ResultSet rs = preparedStatement.getGeneratedKeys();
-
-            // if(rs.next()){
-            //     System.out.println("Checking newly created account...");
-            //     int auto_account_id = (int) rs.getLong(1);
-            //     return new Account(auto_account_id, account.getUsername(), account.getPassword());
-            // }
-
-            //Query for the newly added account for the generated account id
+            //Return the account with the newly added account id
             String sql2 = "SELECT account_id FROM account WHERE username = ?";
             PreparedStatement ps2 = connection.prepareStatement(sql2);
 
@@ -53,7 +46,6 @@ public class AccountDAO {
                 
             //Return the new account
             while (rs2.next()) {
-                System.out.println("Found something! => " + rs2.getInt(1));
                 account.setAccount_id(rs2.getInt(1));
                 return account;
             }
@@ -73,7 +65,6 @@ public class AccountDAO {
      * @return the account if an account with that username exists
      */
     public Account getAccountFromUsername(String username) {
-        System.out.println("Searching for dupe username...");
         Connection connection = ConnectionUtil.getConnection();
 
         try {
@@ -88,7 +79,6 @@ public class AccountDAO {
             ResultSet rs = preparedStatement.executeQuery();
 
             if(rs.next()) {
-                System.out.println("Dupe found!");
                 return new Account(rs.getInt("account_id"), rs.getString("username"), rs.getString("password") );
             }
 
