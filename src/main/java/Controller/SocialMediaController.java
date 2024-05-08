@@ -46,7 +46,7 @@ public class SocialMediaController {
         app.post("/login", this::postLoginHandler);
         app.post("/messages", this::postMessagesHandler);
         app.get("/messages", this::getAllMessagesHandler);
-        app.get("/accounts/messages/{message_id}", this::getMessageByIDHandler);
+        app.get("/messages/{message_id}", this::getMessageByIDHandler);
         app.delete("/messages/{message_id}", this::deleteMessageByIDHandler);
         app.patch("/messages/{message_id}", this::patchMessageByIDHandler);
         app.get("/accounts/{account_id}/messages", this::getAllMessagesByIDHandler);
@@ -138,7 +138,7 @@ public class SocialMediaController {
      * @param context the context object handles information HTTP requests and generates responses within Javalin. 
      */
     private void getAllMessagesHandler(Context context) {
-
+        context.json(messageService.retrieveMessages());
     }
 
     /**
@@ -147,7 +147,15 @@ public class SocialMediaController {
      * @param context the context object handles information HTTP requests and generates responses within Javalin. 
      */
     private void getMessageByIDHandler(Context context) {
-
+         Message message = messageService.getMessageByID(Integer.parseInt(context.pathParam("message_id")));
+      
+        //Force a 200 response body
+        if (message != null) {
+            context.json(message);
+        }  
+        else {
+            context.status(200);
+        }
     }
 
     /**
@@ -156,7 +164,15 @@ public class SocialMediaController {
      * @param context the context object handles information HTTP requests and generates responses within Javalin. 
      */
     private void deleteMessageByIDHandler(Context context) {
-
+        Message message = messageService.deleteMessageByID(Integer.parseInt(context.pathParam("message_id")));
+      
+        //Force a 200 response body
+        if (message != null) {
+            context.json(message);
+        }  
+        else {
+            context.status(200);
+        }
     }
 
     /**

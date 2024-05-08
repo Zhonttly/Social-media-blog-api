@@ -50,7 +50,7 @@ public class AccountDAO {
             ps2.setString(1, account.getUsername());
 
             ResultSet rs2 = ps2.executeQuery();
-
+                
             //Return the new account
             while (rs2.next()) {
                 System.out.println("Found something! => " + rs2.getInt(1));
